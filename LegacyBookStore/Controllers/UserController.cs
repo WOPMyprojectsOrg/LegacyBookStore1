@@ -28,8 +28,8 @@ namespace LegacyBookStore.Controllers
         {
             if (string.IsNullOrEmpty(name))
                 name = "Guest";
-
-            return Content($"<h1>Welcome, {name}!</h1>", "text/html");
+            var encoderName = System.Net.WebUtility.HtmlEncode(name);
+            return Content($"<h1>Welcome, {encoderName}!</h1>", "text/html");
         }
     }
 }
