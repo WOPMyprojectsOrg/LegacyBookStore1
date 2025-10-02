@@ -1,5 +1,6 @@
 ﻿using LegacyBookStore.Data;
 using LegacyBookStore.Models;
+using LegacyBookStore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,26 +10,20 @@ using System.Text.Json;
 namespace LegacyBookStore.Controllers
 {
     [Route("api/[controller]")]
-    public class BooksController : Controller
+    public class BooksController(
+        IBookRepository _bookRepository) : Controller
     {
-        private readonly AppDbContext _db;
-
-        public BooksController(AppDbContext db)
-        {
-            _db = db;
-        }
-
         [HttpGet]
         public string GetBooks()
         {
-            var books = _db.Books.ToList();
+            var books = _bookRepository.GetAll();
             return JsonSerializer.Serialize(books);
         }
 
         [HttpGet("{id}")]
         public string GetBook(int id)
         {
-            var book = _db.Books.Find(id);
+            var book = _bookRepository.GetById(id);
             if (book == null)
                 return JsonSerializer.Serialize(new { error = "Book not found" });
 
@@ -43,8 +38,7 @@ namespace LegacyBookStore.Controllers
                 return BadRequest("Title is required");
             }
 
-            _db.Books.Add(book);
-            _db.SaveChanges();
+            _bookRepository.Create(book);
 
             return Content("Book created", "text/plain");
         }
@@ -52,12 +46,7 @@ namespace LegacyBookStore.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
-            var book = _db.Books.Find(id);
-            if (book == null)
-                return NotFound();
-
-            _db.Books.Remove(book);
-            _db.SaveChanges();
+            _bookRepository.DeleteById(id);
 
             return Ok("Deleted");
         }
