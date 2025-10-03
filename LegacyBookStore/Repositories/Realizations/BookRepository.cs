@@ -1,52 +1,42 @@
 ﻿using LegacyBookStore.Data;
 using LegacyBookStore.Models;
 using LegacyBookStore.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace LegacyBookStore.Repositories.Realizations
 {
-    public class BookRepository(
-        AppDbContext _db): IBookRepository
+    public class BookRepository : IBookRepository
     {
-        public Book Create(Book entity)
+        private readonly AppDbContext _db;
+
+        public BookRepository(AppDbContext db)
         {
-            var entityentry = _db.Add(entity);
-            _db.SaveChanges();
-            return entity;
+            _db = db;
         }
-
-        public Book Delete(Book entity)
+        public async Task<Book> Create(Book book)
         {
-            _db.Remove(entity);
-            _db.SaveChanges();
-            return entity;   
-        }
-
-        public Book DeleteById(int id)
+            _db.Books.Add(book);
+            await _db.SaveChangesAsync();
+            return book;
+        } 
+        public async Task<bool> DeleteById(int id)
         {
-            var book = _db.Books.FirstOrDefault(entity => entity.Id == id);
-
-            if (book == null)
-            {
-                return null;
+            var book = await _db.Books.FindAsync(id);
+            if (book == null) { 
+                return false;
             }
-            return Delete(book);
+            _db.Books.Remove(book);
+            return true;
         }
 
-        public ICollection<Book> GetAll()
+        public async Task<Book?> GetBookById(int id)
         {
-            return _db.Books.ToList();
+            return await _db.Books.FindAsync(id);
         }
 
-        public Book GetById(int id)
+        public async Task<List<Book>> GetAll()
         {
-            return _db.Books.First(entity => entity.Id == id);
-        }
-
-        public Book Update(Book entity)
-        {
-            _db.Books.Update(entity);
-            _db.SaveChanges();
-            return entity;
+            return await _db.Books.ToListAsync();
         }
     }
 }
