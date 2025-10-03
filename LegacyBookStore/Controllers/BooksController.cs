@@ -10,24 +10,25 @@ using System.Text.Json;
 namespace LegacyBookStore.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class BooksController(
         IBookRepository _bookRepository) : Controller
     {
         [HttpGet]
-        public string GetBooks()
+        public IActionResult GetBooks()
         {
             var books = _bookRepository.GetAll();
-            return JsonSerializer.Serialize(books);
+            return Ok(books);
         }
 
         [HttpGet("{id}")]
-        public string GetBook(int id)
+        public IActionResult GetBook(int id)
         {
             var book = _bookRepository.GetById(id);
             if (book == null)
-                return JsonSerializer.Serialize(new { error = "Book not found" });
+                return Ok(new { error = "Book not found" });
 
-            return JsonSerializer.Serialize(book);
+            return Ok(book);
         }
 
         [HttpPost]
