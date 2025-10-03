@@ -1,8 +1,21 @@
 ﻿using LegacyBookStore.Data;
 using LegacyBookStore.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("BooksPolicy", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromSeconds(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+});
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>

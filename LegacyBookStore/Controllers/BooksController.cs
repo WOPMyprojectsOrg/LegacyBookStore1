@@ -3,6 +3,7 @@ using LegacyBookStore.Models;
 using LegacyBookStore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Text.Json;
@@ -10,6 +11,7 @@ using System.Text.Json;
 namespace LegacyBookStore.Controllers
 {
     [Route("api/[controller]")]
+    [EnableRateLimiting("BooksPolicy")]
     public class BooksController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
