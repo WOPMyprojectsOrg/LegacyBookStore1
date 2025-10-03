@@ -10,44 +10,51 @@ using System.Text.Json;
 namespace LegacyBookStore.Controllers
 {
     [Route("api/[controller]")]
-    public class BooksController(
-        IBookRepository _bookRepository) : Controller
+    public class BooksController : ControllerBase
     {
+        private readonly IBookRepository _bookRepository;
+        public BooksController(IBookRepository bookRepository) {
+            _bookRepository = bookRepository;
+        }
+
         [HttpGet]
-        public string GetBooks()
+        public async Task<IActionResult> GetBooks()
         {
-            var books = _bookRepository.GetAll();
-            return JsonSerializer.Serialize(books);
+            var books = await _bookRepository.GetAll();
+            return Ok(books);
         }
 
         [HttpGet("{id}")]
-        public string GetBook(int id)
+        public async Task<IActionResult> GetBook(int id)
         {
-            var book = _bookRepository.GetById(id);
+            var book = await _bookRepository.GetBookById(id);
             if (book == null)
-                return JsonSerializer.Serialize(new { error = "Book not found" });
+                return NotFound(new { error = "Book not found" });
 
-            return JsonSerializer.Serialize(book);
+            return Ok(book);
         }
 
         [HttpPost]
-        public IActionResult CreateBook([FromBody] Book book)
+        public async Task<IActionResult> CreateBook([FromBody] Book book)
         {
             if (string.IsNullOrWhiteSpace(book?.Title))
             {
                 return BadRequest("Title is required");
             }
 
-            _bookRepository.Create(book);
+            await _bookRepository.Create(book);
 
             return Content("Book created", "text/plain");
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            _bookRepository.DeleteById(id);
-
+            var result = await _bookRepository.DeleteById(id);
+            if (!result)
+            {
+                return NotFound();
+            }
             return Ok("Deleted");
         }
     }

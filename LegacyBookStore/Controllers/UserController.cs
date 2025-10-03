@@ -17,10 +17,10 @@ namespace LegacyBookStore.Controllers
         }
 
         [HttpGet]
-        public string GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users =  _db.Users.ToList();
-            return JsonSerializer.Serialize(users);
+            var users = await _db.Users.ToListAsync();
+            return Ok(users);
         }
 
         [HttpGet("welcome")]
