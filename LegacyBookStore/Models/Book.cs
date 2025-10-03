@@ -1,4 +1,6 @@
-﻿namespace LegacyBookStore.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LegacyBookStore.Models
 {
     public class Book
     {
